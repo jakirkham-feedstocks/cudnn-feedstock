@@ -1,5 +1,4 @@
 {% set version = "8.9.7.29" %}
-{% set cuda_major = (cuda_compiler_version|default("12.0.0")).split(".")[0] %}
 {% set platform = "linux-x86_64" %}  # [linux64]
 {% set platform = "linux-ppc64le" %}  # [ppc64le]
 {% set platform = "linux-sbsa" %}  # [aarch64]
@@ -26,6 +25,7 @@ build:
   number: 0
   skip: True  # [osx]
   skip: True  # [cuda_compiler_version == "11.2"]
+  skip: True  # [not (cuda_compiler_version or "").startswith(str(cuda_major or "-1"))]
   # Disable binary relocation to workaround patchelf issue
   # xref: https://github.com/NixOS/patchelf/issues/492
   binary_relocation: false
@@ -54,7 +54,7 @@ requirements:
     - arm-variant * {{ arm_variant_type }}  # [aarch64]
     - sysroot_{{ target_platform }} 2.17  # [linux]
   host:
-    - cuda-version {{ cuda_major }}.0
+    - cuda-version {{ cuda_major }}.0  # [cuda_major]
     - patchelf >=0.12  # [linux]
     # to suppress ".so not found" errors
     - libzlib       # [linux]
