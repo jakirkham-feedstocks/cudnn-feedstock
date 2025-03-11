@@ -53,6 +53,49 @@ requirements:
   run_constrained:
     - arm-variant * {{ arm_variant_type }}  # [aarch64]
 
+outputs:
+  - name: cudnn
+  - name: libcudnn
+    build:
+      ignore_run_exports_from:
+        - {{ compiler('cuda') }}
+        - libcublas-dev           # [(cuda_compiler_version or "").startswith("12")]
+    files:
+      - lib/libcudnn*.so.*                  # [linux]
+      - Library/bin/cudnn*.dll              # [win]
+    requirements:
+      build:
+        - {{ compiler('c') }}
+        - {{ compiler('cuda') }}
+        - {{ compiler('cxx') }}
+        - arm-variant * {{ arm_variant_type }}  # [aarch64]
+        - {{ stdlib("c") }}
+      host:
+        - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
+      run:
+        - {{ pin_compatible('cuda-version', max_pin='x', min_pin='x') }}  # [cuda_compiler_version != "None"]
+      run_constrained:
+        - arm-variant * {{ arm_variant_type }}  # [aarch64]
+  - name: libcudnn-dev
+    files:
+      - include/cudnn*.h                    # [linux]
+      - Library/include/cudnn*.h            # [win]
+      - lib/libcudnn*.so                    # [linux]
+      - Library/lib/cudnn*.lib              # [win]
+    requirements:
+      build:
+        - {{ compiler('c') }}
+        - {{ compiler('cuda') }}
+        - {{ compiler('cxx') }}
+        - arm-variant * {{ arm_variant_type }}  # [aarch64]
+        - {{ stdlib("c") }}
+      host:
+        - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
+      run:
+        - {{ pin_compatible('cuda-version', max_pin='x', min_pin='x') }}  # [cuda_compiler_version != "None"]
+      run_constrained:
+        - arm-variant * {{ arm_variant_type }}  # [aarch64]
+
 test:
   requires:
     - {{ compiler('c') }}  # [linux]
